@@ -3,13 +3,47 @@
 
 	export let searchText = "";
 	export let entries = [];
-	export let entriesDisplayed = [];
 	export let possibleValuesForHttps = [];
 	export let selectedValueForHttps = null;
 	export let possibleValuesForCors = [];
 	export let selectedValueForCors = null;
 	export let possibleValuesForCategory = [];
 	export let selectedValueForCategory = null;
+	$: entriesReactive = getEntriesToDisplay(
+		entries,
+		selectedValueForHttps,
+		selectedValueForCors,
+		selectedValueForCategory,
+		searchText,
+	);
+
+	function getEntriesToDisplay(
+		entries,
+		selectedValueForHttps,
+		selectedValueForCors,
+		selectedValueForCategory,
+		searchText,
+	) {
+		let result = [...entries];
+		if (selectedValueForHttps !== null) {
+			result = result.filter(e => e["HTTPS"] === selectedValueForHttps)
+		}
+		if (selectedValueForCors !== null) {
+			result = result.filter(e => e["Cors"] === selectedValueForCors)
+		}
+		if (selectedValueForCategory !== null) {
+			result = result.filter(e => e["Category"] === selectedValueForCategory)
+		}
+		const textToMatch = searchText.toLowerCase().trim();
+		if (!!textToMatch) {
+			result = result.filter(e =>
+											e.API.toLowerCase().includes(textToMatch) ||
+											// e.Description.toLowerCase().includes(textToMatch) ||
+											e.Category.toLowerCase().includes(textToMatch)
+										);
+		}
+		return result;
+	}
 
 	// 	{
 	// 		"API": string;
@@ -21,18 +55,14 @@
 	// 		"Category": string;
 	// 	}[]
 	async function getEntries() {
-		console.log(`Fetching entries.`);
 		const api = "https://api.publicapis.org/entries";
 		const response = await fetch(api).then(r => r.json());
 		const result = response ? response.entries : [];
-		console.log(`Fetched ${result.length} entries.`);
 		return result;
 	}
 
 	async function fetchAndSetEntries() {
 		entries = await getEntries();
-		entriesDisplayed = [...entries];
-		console.log(`Set entries.`);
 	}
 
 	function getAllPossibleValuesFor(key, entries) {
@@ -45,52 +75,9 @@
 	}
 
 	function setFilters() {
-		console.log(`Set possibleValuesForHttps to ${possibleValuesForHttps}`)
 		possibleValuesForHttps = getAllPossibleValuesFor("HTTPS", entries);
 		possibleValuesForCors = getAllPossibleValuesFor("Cors", entries);
 		possibleValuesForCategory = getAllPossibleValuesFor("Category", entries);
-	}
-
-	function handlFilterChangeForHttps() {
-		if (selectedValueForHttps === null) {
-			entriesDisplayed = [...entries];
-		} else {
-			entriesDisplayed = entries.filter(e => e["HTTPS"] === selectedValueForHttps);
-		}
-	}
-	
-	function handlFilterChangeForCors() {
-		if (selectedValueForCors === null) {
-			entriesDisplayed = [...entries];
-		} else {
-			entriesDisplayed = entries.filter(e => e["Cors"] === selectedValueForCors);
-		}
-	}
-
-	function handlFilterChangeForCategory() {
-		if (selectedValueForCategory === null) {
-			resetEntriesToDisplay();
-		} else {
-			entriesDisplayed = entries.filter(e => e["Category"] === selectedValueForCategory);
-		}
-	}
-
-	function resetEntriesToDisplay() {
-		entriesDisplayed = [...entries];
-	}
-
-	function search() {
-		console.log(`Search initiated for: ${searchText}`);
-		const textToMatch = searchText.toLowerCase().trim();
-		if (!textToMatch) {
-			resetEntriesToDisplay();
-		} else {
-			entriesDisplayed = entries.filter(e =>
-				e.API.toLowerCase().includes(textToMatch) ||
-				// e.Description.toLowerCase().includes(textToMatch) ||
-				e.Category.toLowerCase().includes(textToMatch)
-			)
-		}
 	}
 
 	onMount(initEverything);
@@ -104,13 +91,13 @@
 <main>
 
 	<div class="search">
-		<input bind:value={searchText} on:keyup={search} placeholder="Search">
+		<input bind:value={searchText} placeholder="Search">
 	</div>
 
 	<div class="filters">
 		<div class="filter filter--https">
 			<p>HTTPS</p>
-			<select bind:value={selectedValueForHttps} on:change={handlFilterChangeForHttps}>
+			<select bind:value={selectedValueForHttps}>
 				<option value={null}>
 					All
 				</option>
@@ -123,7 +110,7 @@
 		</div>
 		<div class="filter filter--cors">
 			<p>Cors</p>
-			<select bind:value={selectedValueForCors} on:change={handlFilterChangeForCors}>
+			<select bind:value={selectedValueForCors}>
 				<option value={null}>
 					All
 				</option>
@@ -136,7 +123,7 @@
 		</div>
 		<div class="filter filter--category">
 			<p>Category</p>
-			<select bind:value={selectedValueForCategory} on:change={handlFilterChangeForCategory}>
+			<select bind:value={selectedValueForCategory}>
 				<option value={null}>
 					All
 				</option>
@@ -151,6 +138,7 @@
 
 
 	<h1>APIs:</h1>
+	<small>(Displaying {entriesReactive.length} out of {entries.length})</small>
 	<table>
 		<thead>
 			<tr>
@@ -161,7 +149,7 @@
 				<th>Category</th>
 			</tr>
 		</thead>
-		{#each entriesDisplayed as { API, Description, Auth, HTTPS, Cors, Link, Category }, i}
+		{#each entriesReactive as { API, Description, Auth, HTTPS, Cors, Link, Category }, i}
 			<tr>
 				<td>{i+1}</td>
 				<td>
