@@ -92,19 +92,24 @@
 </script>
 
 <svelte:head>
+	<title>PublicApisBrowser</title>
+	<meta name="viewport" content= "width=device-width, initial-scale=1.0"> 
 	<link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
 	<style>
 		html, body {
 			height: 100%;
 			overflow: auto;
+		}
+		body {
 			padding: 0;
+			max-width: 58em;
 		}
 	</style>
 </svelte:head>
 
 <header>
 	<div class="search">
-		<input bind:value={searchText} placeholder="Search">
+		<input bind:value={searchText} placeholder="Search" autofocus>
 	</div>
 
 	<div class="filters">
@@ -165,17 +170,19 @@
 				<th>Category</th>
 			</tr>
 		</thead>
-		{#each entriesReactive as { API, Description, Auth, HTTPS, Cors, Link, Category }, i}
-			<tr>
-				<td>{i+1}</td>
-				<td>
-					<a href={Link} target="_blank" rel="noopener">{API}</a>
-				</td>
-				<td>{HTTPS}</td>
-				<td>{Cors}</td>
-				<td>{Category}</td>
-			</tr>
-		{/each}
+		<tbody>
+			{#each entriesReactive as { API, Description, Auth, HTTPS, Cors, Link, Category }, i}
+				<tr>
+					<td>{i+1}</td>
+					<td>
+						<a href={Link} target="_blank" rel="noopener">{API}</a>
+					</td>
+					<td>{HTTPS}</td>
+					<td>{Cors}</td>
+					<td>{Category}</td>
+				</tr>
+			{/each}
+		</tbody>
 	</table>
 </main>
 
