@@ -7,6 +7,8 @@
 	export let selectedValueForHttps = null;
 	export let possibleValuesForCors = [];
 	export let selectedValueForCors = null;
+	export let possibleValuesForCategory = [];
+	export let selectedValueForCategory = null;
 
 	// 	{
 	// 		"API": string;
@@ -45,6 +47,7 @@
 		console.log(`Set possibleValuesForHttps to ${possibleValuesForHttps}`)
 		possibleValuesForHttps = getAllPossibleValuesFor("HTTPS", entries);
 		possibleValuesForCors = getAllPossibleValuesFor("Cors", entries);
+		possibleValuesForCategory = getAllPossibleValuesFor("Category", entries);
 	}
 
 	function handlFilterChangeForHttps() {
@@ -60,6 +63,14 @@
 			entriesDisplayed = [...entries];
 		} else {
 			entriesDisplayed = entries.filter(e => e["Cors"] === selectedValueForCors);
+		}
+	}
+
+	function handlFilterChangeForCategory() {
+		if (selectedValueForCategory === null) {
+			entriesDisplayed = [...entries];
+		} else {
+			entriesDisplayed = entries.filter(e => e["Category"] === selectedValueForCategory);
 		}
 	}
 
@@ -87,13 +98,26 @@
 				{/each}
 			</select>
 		</div>
-		<div class="filter filter--https">
+		<div class="filter filter--cors">
 			<p>Cors</p>
 			<select bind:value={selectedValueForCors} on:change={handlFilterChangeForCors}>
 				<option value={null}>
 					All
 				</option>
 				{#each possibleValuesForCors as value}
+					<option value={value}>
+						{value}
+					</option>
+				{/each}
+			</select>
+		</div>
+		<div class="filter filter--category">
+			<p>Category</p>
+			<select bind:value={selectedValueForCategory} on:change={handlFilterChangeForCategory}>
+				<option value={null}>
+					All
+				</option>
+				{#each possibleValuesForCategory as value}
 					<option value={value}>
 						{value}
 					</option>
@@ -111,6 +135,7 @@
 				<th>API</th>
 				<th>HTTPS</th>
 				<th>Cors</th>
+				<th>Category</th>
 			</tr>
 		</thead>
 		{#each entriesDisplayed as { API, Description, Auth, HTTPS, Cors, Link, Category }, i}
@@ -119,6 +144,7 @@
 				<td>{API}</td>
 				<td>{HTTPS}</td>
 				<td>{Cors}</td>
+				<td>{Category}</td>
 			</tr>
 		{/each}
 	</table>
