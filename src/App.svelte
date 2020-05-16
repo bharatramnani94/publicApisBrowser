@@ -1,6 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 
+	export let searchText = "";
 	export let entries = [];
 	export let entriesDisplayed = [];
 	export let possibleValuesForHttps = [];
@@ -68,9 +69,27 @@
 
 	function handlFilterChangeForCategory() {
 		if (selectedValueForCategory === null) {
-			entriesDisplayed = [...entries];
+			resetEntriesToDisplay();
 		} else {
 			entriesDisplayed = entries.filter(e => e["Category"] === selectedValueForCategory);
+		}
+	}
+
+	function resetEntriesToDisplay() {
+		entriesDisplayed = [...entries];
+	}
+
+	function search() {
+		console.log(`Search initiated for: ${searchText}`);
+		const textToMatch = searchText.toLowerCase().trim();
+		if (!textToMatch) {
+			resetEntriesToDisplay();
+		} else {
+			entriesDisplayed = entries.filter(e =>
+				e.API.toLowerCase().includes(textToMatch) ||
+				// e.Description.toLowerCase().includes(textToMatch) ||
+				e.Category.toLowerCase().includes(textToMatch)
+			)
 		}
 	}
 
@@ -83,6 +102,10 @@
 </svelte:head>
 
 <main>
+
+	<div class="search">
+		<input bind:value={searchText} on:keyup={search} placeholder="Search">
+	</div>
 
 	<div class="filters">
 		<div class="filter filter--https">
@@ -141,7 +164,9 @@
 		{#each entriesDisplayed as { API, Description, Auth, HTTPS, Cors, Link, Category }, i}
 			<tr>
 				<td>{i+1}</td>
-				<td>{API}</td>
+				<td>
+					<a href={Link} target="_blank" rel="noopener">{API}</a>
+				</td>
 				<td>{HTTPS}</td>
 				<td>{Cors}</td>
 				<td>{Category}</td>
