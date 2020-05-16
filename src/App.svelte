@@ -45,6 +45,13 @@
 		return result;
 	}
 
+	function reset() {
+		selectedValueForHttps = null;
+		selectedValueForCors = null;
+		selectedValueForCategory = null;
+		searchText = "";
+	}
+
 	// 	{
 	// 		"API": string;
 	// 		"Description": string;
@@ -86,10 +93,16 @@
 
 <svelte:head>
 	<link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+	<style>
+		html, body {
+			height: 100%;
+			overflow: auto;
+			padding: 0;
+		}
+	</style>
 </svelte:head>
 
-<main>
-
+<header>
 	<div class="search">
 		<input bind:value={searchText} placeholder="Search">
 	</div>
@@ -134,9 +147,12 @@
 				{/each}
 			</select>
 		</div>
+		<div class="filter filter--reset">
+			<button on:click={reset}>Reset</button>
+		</div>
 	</div>
-
-
+</header>
+<main>
 	<h1>APIs:</h1>
 	<small>(Displaying {entriesReactive.length} out of {entries.length})</small>
 	<table>
@@ -161,10 +177,25 @@
 			</tr>
 		{/each}
 	</table>
-
-
 </main>
 
 <style>
-	
+
+header {
+	position: sticky;
+	top: 0;
+	background: rgba(249, 249, 249, 0.97);
+	padding: 2rem 0;
+	border-bottom: 1px dashed #cacaca;
+}
+
+.filter {
+    display: inline-block;
+    margin-right: 2rem;
+}
+
+.search input {
+    width: 100%;
+}
+
 </style>
