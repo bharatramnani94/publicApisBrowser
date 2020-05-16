@@ -5,6 +5,8 @@
 	export let entriesDisplayed = [];
 	export let possibleValuesForHttps = [];
 	export let selectedValueForHttps = null;
+	export let possibleValuesForCors = [];
+	export let selectedValueForCors = null;
 
 	// 	{
 	// 		"API": string;
@@ -42,6 +44,7 @@
 	function setFilters() {
 		console.log(`Set possibleValuesForHttps to ${possibleValuesForHttps}`)
 		possibleValuesForHttps = getAllPossibleValuesFor("HTTPS", entries);
+		possibleValuesForCors = getAllPossibleValuesFor("Cors", entries);
 	}
 
 	function handlFilterChangeForHttps() {
@@ -49,6 +52,14 @@
 			entriesDisplayed = [...entries];
 		} else {
 			entriesDisplayed = entries.filter(e => e["HTTPS"] === selectedValueForHttps);
+		}
+	}
+	
+	function handlFilterChangeForCors() {
+		if (selectedValueForCors === null) {
+			entriesDisplayed = [...entries];
+		} else {
+			entriesDisplayed = entries.filter(e => e["Cors"] === selectedValueForCors);
 		}
 	}
 
@@ -63,7 +74,7 @@
 <main>
 
 	<div class="filters">
-		<form on:submit|preventDefault={handlFilterChangeForHttps}>
+		<div class="filter filter--https">
 			<p>HTTPS</p>
 			<select bind:value={selectedValueForHttps} on:change={handlFilterChangeForHttps}>
 				<option value={null}>
@@ -75,7 +86,20 @@
 					</option>
 				{/each}
 			</select>
-		</form>
+		</div>
+		<div class="filter filter--https">
+			<p>Cors</p>
+			<select bind:value={selectedValueForCors} on:change={handlFilterChangeForCors}>
+				<option value={null}>
+					All
+				</option>
+				{#each possibleValuesForCors as value}
+					<option value={value}>
+						{value}
+					</option>
+				{/each}
+			</select>
+		</div>
 	</div>
 
 
@@ -86,6 +110,7 @@
 				<th>#</th>
 				<th>API</th>
 				<th>HTTPS</th>
+				<th>Cors</th>
 			</tr>
 		</thead>
 		{#each entriesDisplayed as { API, Description, Auth, HTTPS, Cors, Link, Category }, i}
@@ -93,6 +118,7 @@
 				<td>{i+1}</td>
 				<td>{API}</td>
 				<td>{HTTPS}</td>
+				<td>{Cors}</td>
 			</tr>
 		{/each}
 	</table>
